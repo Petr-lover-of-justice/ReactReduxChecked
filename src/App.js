@@ -5,28 +5,45 @@ import { Item } from "./components/Item";
 import { Replay } from "@mui/icons-material";
 
 function reducer(state, action) {
-  console.log(action)
+  console.log(state);
   switch (action.type) {
     case "ADD_TASK": {
-      return [...state, action.payload];
+      return [
+        ...state,
+        {
+          id: state[state.length - 1].id + 1,
+          input: action.payload.text,
+          checked: action.payload.checked,
+        },
+      ];
+    }
+    case "deletChecede": {
+      const stateNews = state.filter((items) => items.id !== action.payload);
+      return stateNews;
     }
     default:
-      throw new Error();
+      return state;
   }
 }
 
 function App() {
   const [state, dispatch] = React.useReducer(reducer, [
-    { id: 2, input: "likeFood", complete: true },
+    { id: 0, input: "likeFood", checked: true },
   ]);
 
-  const addTask = (obj) => {
+  const addTask = (text, checked) => {
     dispatch({
       type: "ADD_TASK",
-      payload: obj,
+      payload: { text, checked },
     });
   };
 
+  const deletAdd = (id) => {
+    dispatch({
+      type: "deletChecede",
+      payload:  id ,
+    });
+  };
 
   return (
     <div className="App">
@@ -44,11 +61,7 @@ function App() {
         <Divider />
         <List>
           {state.map((obj) => (
-            <Item
-              key={obj.id}
-              text={obj.input}
-              {...state}
-            />
+            <Item deletAdd={deletAdd} {...obj} key={obj.id} />
           ))}
         </List>
         <Divider />

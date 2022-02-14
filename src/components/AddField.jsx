@@ -6,28 +6,13 @@ import React from "react";
 
 export const AddField = ({ addTask }) => {
   const [input, setInput] = React.useState("");
-  const [checkedInput, setCheckedInput] = React.useState(false)
-
-  const handleClick =()=>{
-    setCheckedInput(!checkedInput)
-  }
+  const [checkedInput, setCheckedInput] = React.useState(false);
 
   const handleAddTas = () => {
-    const newTodoTask = {
-      id: Date.now(),
-      input,
-      completed: true,
-    };
+    addTask(input, checkedInput);
     setInput("");
-    setCheckedInput(false)
-    addTask(newTodoTask);
+    setCheckedInput(false);
   };
-
-
-  const inputGet = (e) => {
-    setInput(e.target.value);
-  };
-
 
   return (
     <div className="field">
@@ -35,14 +20,14 @@ export const AddField = ({ addTask }) => {
         className="checkbox"
         icon={<RadioButtonUncheckedIcon />}
         checkedIcon={<CheckCircleIcon />}
+        onChange={(e) => setCheckedInput(e.target.checked)}
         checked={checkedInput}
-        onClick={handleClick}
       />
       <TextField
         placeholder="Введите текст задачи..."
         variant="standard"
         fullWidth
-        onChange={inputGet}
+        onChange={(e) => setInput(e.target.value)}
         value={input}
       />
       <Button onClick={handleAddTas}>
