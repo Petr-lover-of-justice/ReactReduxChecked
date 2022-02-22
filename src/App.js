@@ -2,34 +2,81 @@ import React from "react";
 import { Paper, Divider, Button, List, Tabs, Tab } from "@mui/material";
 import { AddField } from "./components/AddField";
 import { Item } from "./components/Item";
-import { Replay } from "@mui/icons-material";
 
 function reducer(state, action) {
-  console.log(state);
+  console.log(action, state);
   switch (action.type) {
     case "ADD_TASK": {
       return [
         ...state,
         {
-          id: state[state.length - 1].id + 1,
+          id: Date.now(),
           input: action.payload.text,
           checked: action.payload.checked,
         },
       ];
     }
-    case "deletChecede": {
+
+    case "DELETE_TASK": {
       const stateNews = state.filter((items) => items.id !== action.payload);
       return stateNews;
     }
+
+    case "DELETE_ALL_TASK": {
+      return (state = []);
+    }
+
+    case "CHECKED_TASK": {
+      return state.map((check) => {
+        if (check.id === action.payload) {
+          return {
+            ...check,
+            checked: !check.checked,
+          };
+        }
+        return check;
+      });
+    }
+
+    case "CHECKED_ALL": {
+      return state.map((all) => {
+        return {
+          ...all,
+          checked: true,
+        };
+      });
+    }
+
+    case "CHECKED_TAB": {
+      return {
+        ...state,
+        orderBy: action.payload,
+      };
+    }
+
+
+
+    case "TAB_ALL": {
+      return state;
+    }
+
+    case "TAB_TRUE": {
+      return state
+      
+    }
+    // state.filter((t)=> t.checked === true);
+    case "TAB_FALSE": {
+      // return state.filter((item2) => item2.checked === false);
+      return state
+    }
+
     default:
       return state;
   }
 }
 
 function App() {
-  const [state, dispatch] = React.useReducer(reducer, [
-    { id: 0, input: "likeFood", checked: true },
-  ]);
+  const [state, dispatch] = React.useReducer(reducer, []);
 
   const addTask = (text, checked) => {
     dispatch({
@@ -38,12 +85,55 @@ function App() {
     });
   };
 
-  const deletAdd = (id) => {
+  const checkedPost = (id) => {
     dispatch({
-      type: "deletChecede",
-      payload:  id ,
+      type: "CHECKED_TASK",
+      payload: id,
     });
   };
+
+  const deletTask = (id) => {
+    dispatch({
+      type: "DELETE_TASK",
+      payload: id,
+    });
+  };
+
+  const allDeletPost = (id) => {
+    dispatch({
+      type: "DELETE_ALL_TASK",
+      payload: id,
+    });
+  };
+  const checkedAll = (id, checked) => {
+    dispatch({
+      type: "CHECKED_ALL",
+      payload: { checked, id },
+    });
+  };
+
+  // const setType = (e) => {
+  //   if (e === "all") {
+  //     dispatch({
+  //       type: "TAB_ALL",
+  //     });
+  //   } else if (e === "true") {
+  //     dispatch({
+  //       type: "TAB_TRUE",
+  //       payload: state
+  //     });
+  //   } else if (e === "false") {
+  //     dispatch({
+  //       type: "TAB_FALSE",
+  //     });
+  //   }
+  // };
+  // const [tabs, setTabs] = React.useState(state);
+  // const setTab=(e)=>{
+  //   if(e==="all"){
+  //     return state
+  //   }
+  // }
 
   return (
     <div className="App">
@@ -54,20 +144,31 @@ function App() {
         <AddField addTask={addTask} />
         <Divider />
         <Tabs value={0}>
+          
           <Tab label="Все" />
-          <Tab label="Активные" />
+          <Tab label="Активные"  />
           <Tab label="Завершённые" />
         </Tabs>
+        {/* //onClick={setType("all") */}
         <Divider />
         <List>
-          {state.map((obj) => (
-            <Item deletAdd={deletAdd} {...obj} key={obj.id} />
-          ))}
+          {state.length ? (
+            state.map((obj) => (
+              <Item
+                deletTask={deletTask}
+                {...obj}
+                key={obj.id}
+                checkedPost={() => checkedPost(obj.id)}
+              />
+            ))
+          ) : (
+            <p>тут пуста</p>
+          )}
         </List>
         <Divider />
         <div className="check-buttons">
-          <Button>Отметить всё</Button>
-          <Button>Очистить</Button>
+          <Button onClick={checkedAll}>Отметить всё</Button>
+          <Button onClick={allDeletPost}>Очистить</Button>
         </div>
       </Paper>
     </div>
