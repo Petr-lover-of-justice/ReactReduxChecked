@@ -2,10 +2,8 @@ import React from "react";
 import { Paper, Divider, Button, List, Tabs, Tab } from "@mui/material";
 import { AddField } from "./components/AddField";
 import { Item } from "./components/Item";
-import { Replay } from "@mui/icons-material";
 
 function reducer(state, action) {
-  console.log(state);
   switch (action.type) {
     case "ADD_TASK": {
       return [
@@ -17,10 +15,40 @@ function reducer(state, action) {
         },
       ];
     }
+    case "CHECED_TASK": {
+      return state.map((obj) => {
+        if (obj.id === action.payload) {
+          return {
+            ...obj,
+            checked: !obj.checked,
+          };
+        }
+        return obj;
+      });
+    }
     case "deletChecede": {
       const stateNews = state.filter((items) => items.id !== action.payload);
       return stateNews;
     }
+    case "CLEAR_TASK": {
+      return [];
+    }
+    case "CHECKED_ALL_TRUE": {
+      return state.map((e) => ({
+        ...e,
+        checked: true,
+      }));
+    }
+    case "TAB_ALL": {
+      return state;
+    }
+    case "TAB_ALL_TRUE":{
+     return state.filter((e)=> e.checked === false)
+    }
+    case "TAB_ALL_FALSE":{
+      return state.filter((e)=> e.checked === false)
+     }
+
     default:
       return state;
   }
@@ -28,7 +56,11 @@ function reducer(state, action) {
 
 function App() {
   const [state, dispatch] = React.useReducer(reducer, [
-    { id: 0, input: "likeFood", checked: true },
+    {
+      id: 1,
+      input: "like Cat",
+      checked: true,
+    },
   ]);
 
   const addTask = (text, checked) => {
@@ -37,12 +69,46 @@ function App() {
       payload: { text, checked },
     });
   };
+  const checkedTask = (id) => {
+    dispatch({
+      type: "CHECED_TASK",
+      payload: id,
+    });
+  };
 
   const deletAdd = (id) => {
     dispatch({
       type: "deletChecede",
-      payload:  id ,
+      payload: id,
     });
+  };
+  const ClearState = () => {
+    dispatch({
+      type: "CLEAR_TASK",
+    });
+  };
+  const markCheckedAll = () => {
+    dispatch({
+      type: "CHECKED_ALL_TRUE",
+    });
+  };
+
+  const tabAll = (e) => {
+    if (e === "all") {
+      dispatch({
+        type: "TAB_ALL",
+      });
+    }
+    if (e === "true") {
+      dispatch({
+        type: "TAB_ALL_TRUE",
+      })
+    }
+    if (e === "false") {
+      dispatch({
+        type: "TAB_ALL_FALSE",
+      })
+    }
   };
 
   return (
@@ -54,20 +120,26 @@ function App() {
         <AddField addTask={addTask} />
         <Divider />
         <Tabs value={0}>
-          <Tab label="Все" />
-          <Tab label="Активные" />
-          <Tab label="Завершённые" />
+          <Tab label="Все" onClick={()=>tabAll("all")} />
+          <Tab label="Активные" onClick={()=>tabAll("true")}  />
+          <Tab label="Завершённые" onClick={()=>tabAll("false")}/>
         </Tabs>
         <Divider />
         <List>
           {state.map((obj) => (
-            <Item deletAdd={deletAdd} {...obj} key={obj.id} />
+            <Item
+              key={obj.id}
+              input={obj.input}
+              checked={obj.checked}
+              deletAdd={() => deletAdd(obj.id)}
+              checkedTask={() => checkedTask(obj.id)}
+            />
           ))}
         </List>
         <Divider />
         <div className="check-buttons">
-          <Button>Отметить всё</Button>
-          <Button>Очистить</Button>
+          <Button onClick={markCheckedAll}>Отметить всё</Button>
+          <Button onClick={ClearState}>Очистить</Button>
         </div>
       </Paper>
     </div>
